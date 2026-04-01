@@ -1,0 +1,14 @@
+
+spring:
+  application:
+    name: stats-service
+  datasource:
+    url: jdbc:postgresql://localhost:5432/exploredb
+    username: test
+    password: test
+  jpa:
+    hibernate:
+      ddl-auto: create
+    show-sql: true
+server:
+  port: 9090
