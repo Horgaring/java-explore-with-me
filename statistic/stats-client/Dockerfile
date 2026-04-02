@@ -1,4 +1,4 @@
-FROM amazoncorretto:26.0.0-alpine3.22
+FROM amazoncorretto:21
 VOLUME /tmp
 ARG JAR_FILE=target/*.jar
 COPY ${JAR_FILE} app.jar
