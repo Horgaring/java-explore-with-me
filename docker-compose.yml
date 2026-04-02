@@ -1,6 +1,6 @@
 services:
   stats-server:
-    image: stats-server:0.1
+    image: stats-service:0.1
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://stats-db:5432/mydb
       SPRING_DATASOURCE_USERNAME: postgres
@@ -28,7 +28,17 @@ services:
       timeout: 5s
       retries: 5
 
+  ewm-service:
+    image: main-service:0.1
+    ports:
+      - "8080:8080"
 
+  ewm-db:
+    image: postgres:16.1
+    environment:
+      POSTGRES_DB: mydb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: secret_password
 
 volumes:
   pg_data:
