@@ -7,7 +7,6 @@ import jakarta.validation.constraints.PastOrPresent;
 import lombok.Builder;
 import lombok.Data;
 import model.Visit;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
 
@@ -31,15 +30,6 @@ public class EndpointHit {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime timestamp;
 
-    public Visit toVisit() {
-        Visit visit = new Visit();
-        visit.setApp(this.app);
-        visit.setUri(this.uri);
-        visit.setIp(this.ip);
-        visit.setTimestamp(this.timestamp);
-        return visit;
-    }
-
     public static EndpointHit fromVisit(Visit visit) {
         return EndpointHit.builder()
                 .app(visit.getApp())
@@ -47,5 +37,14 @@ public class EndpointHit {
                 .ip(visit.getIp())
                 .timestamp(visit.getTimestamp())
                 .build();
+    }
+
+    public Visit toVisit() {
+        Visit visit = new Visit();
+        visit.setApp(this.app);
+        visit.setUri(this.uri);
+        visit.setIp(this.ip);
+        visit.setTimestamp(this.timestamp);
+        return visit;
     }
 }
