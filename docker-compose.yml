@@ -1,5 +1,8 @@
 services:
   stats-server:
+    build:
+      context: ./statistic/stats-service/
+      dockerfile: ./Dockerfile
     image: stats-service:0.1
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://stats-db:5432/mydb
@@ -29,6 +32,9 @@ services:
       retries: 5
 
   ewm-service:
+    build:
+      context: ./main-service/
+      dockerfile: ./Dockerfile
     image: main-service:0.1
     ports:
       - "8080:8080"
