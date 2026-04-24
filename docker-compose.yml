@@ -35,6 +35,10 @@ services:
     build:
       context: ./main-service/
       dockerfile: ./Dockerfile
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://ewm-db:5432/mydb
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: secret_password
     image: main-service:0.1
     ports:
       - "8080:8080"
