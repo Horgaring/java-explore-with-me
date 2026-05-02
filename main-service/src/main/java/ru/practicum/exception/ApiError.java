@@ -15,10 +15,10 @@ public class ApiError {
     private String message;
     private String reason;
     private HttpStatus status;
-    
+
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime timestamp;
-    
+
     public ApiError(String message, String reason, HttpStatus status, List<String> errors) {
         this.message = message;
         this.reason = reason;

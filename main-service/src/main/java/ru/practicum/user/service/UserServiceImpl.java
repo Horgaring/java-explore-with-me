@@ -29,25 +29,25 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public UserDto createUser(NewUserRequest newUserRequest) {
         try {
-        User user = userMapper.toEntity(newUserRequest);
-        User savedUser = userRepository.save(user);
-        return userMapper.toDto(savedUser);
+            User user = userMapper.toEntity(newUserRequest);
+            User savedUser = userRepository.save(user);
+            return userMapper.toDto(savedUser);
         } catch (DataIntegrityViolationException e) {
             throw new ConflictException("Email already exists");
-    }
+        }
     }
 
     @Override
     public List<UserDto> getUsers(List<Long> ids, Integer from, Integer size) {
         Pageable pageable = PageRequest.of(from / size, size);
-        
+
         List<User> users;
         if (ids == null || ids.isEmpty()) {
             users = userRepository.findAll(pageable).getContent();
         } else {
             users = userRepository.findByIdIn(ids, pageable);
         }
-        
+
         return users.stream()
                 .map(userMapper::toDto)
                 .collect(Collectors.toList());
@@ -58,7 +58,7 @@ public class UserServiceImpl implements UserService {
     public void deleteUser(Long userId) {
         if (!userRepository.existsById(userId)) {
             throw new NotFoundException("User with id=" + userId + " was not found");
-    }
+        }
         userRepository.deleteById(userId);
-}
+    }
 }

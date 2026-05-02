@@ -14,6 +14,7 @@ import ru.practicum.category.model.Category;
 import ru.practicum.category.repository.CategoryRepository;
 import ru.practicum.exception.ConflictException;
 import ru.practicum.exception.NotFoundException;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -44,8 +45,8 @@ public class CategoryServiceImpl implements CategoryService {
                 .orElseThrow(() -> new NotFoundException("Category with id=" + catId + " was not found"));
 
         if (categoryDto.getName() != null &&
-            !categoryDto.getName().equals(existingCategory.getName()) &&
-            categoryRepository.existsByNameAndIdNot(categoryDto.getName(), catId)) {
+                !categoryDto.getName().equals(existingCategory.getName()) &&
+                categoryRepository.existsByNameAndIdNot(categoryDto.getName(), catId)) {
             throw new ConflictException("Category name must be unique");
         }
 
@@ -68,17 +69,17 @@ public class CategoryServiceImpl implements CategoryService {
                 .orElseThrow(() -> new NotFoundException("Category with id=" + catId + " was not found"));
 
         try {
-        categoryRepository.delete(category);
+            categoryRepository.delete(category);
         } catch (DataIntegrityViolationException e) {
             throw new ConflictException("The category is not empty");
-    }
+        }
     }
 
     @Override
     public List<CategoryDto> getCategories(Integer from, Integer size) {
         Pageable pageable = PageRequest.of(from / size, size);
         List<Category> categories = categoryRepository.findAll(pageable).getContent();
-        
+
         return categories.stream()
                 .map(categoryMapper::toCategoryDto)
                 .collect(Collectors.toList());
@@ -88,7 +89,7 @@ public class CategoryServiceImpl implements CategoryService {
     public CategoryDto getCategoryById(Long catId) {
         Category category = categoryRepository.findById(catId)
                 .orElseThrow(() -> new NotFoundException("Category with id=" + catId + " was not found"));
-        
+
         return categoryMapper.toCategoryDto(category);
     }
 }
