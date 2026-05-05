@@ -14,8 +14,10 @@ import ru.practicum.event.mapper.EventMapper;
 import ru.practicum.event.model.Event;
 import ru.practicum.event.model.EventState;
 import ru.practicum.event.repository.EventRepository;
+import ru.practicum.exception.BadRequestException;
 import ru.practicum.exception.ConflictException;
 import ru.practicum.exception.NotFoundException;
+import ru.practicum.ipinfo.service.IpInfoService;
 import ru.practicum.user.model.User;
 import ru.practicum.user.repository.UserRepository;
 
@@ -32,6 +34,7 @@ public class EventServiceImpl implements EventService {
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
     private final EventMapper eventMapper;
+    private final IpInfoService ipInfoService;
 
     @Override
     public EventFullDto addEvent(Long userId, NewEventDto newEventDto) {
@@ -43,7 +46,7 @@ public class EventServiceImpl implements EventService {
 
         if (newEventDto.getEventDate() != null &&
                 newEventDto.getEventDate().isBefore(LocalDateTime.now().plusHours(2))) {
-            throw new ConflictException("Event date must be at least 2 hours from now");
+            throw new BadRequestException("Event date must be at least 2 hours from now");
         }
 
         Event event = eventMapper.toEvent(newEventDto, category, initiator);
@@ -97,7 +100,7 @@ public class EventServiceImpl implements EventService {
 
         if (updateRequest.getEventDate() != null &&
                 updateRequest.getEventDate().isBefore(LocalDateTime.now().plusHours(2))) {
-            throw new ConflictException("Event date must be at least 2 hours from now");
+            throw new BadRequestException("Event date must be at least 2 hours from now");
         }
 
         updateEventFields(event, updateRequest);
@@ -131,9 +134,7 @@ public class EventServiceImpl implements EventService {
             throw new IllegalArgumentException("Range start must be before range end");
         }
 
-        Pageable pageable = PageRequest.of(from / size, size, Sort.by("id").descending());
-        List<Event> events = eventRepository.findByAdminCriteria(users, states, categories, rangeStart, rangeEnd, pageable)
-                .getContent();
+        List<Event> events = eventRepository.findByAdminCriteria(users, states, categories, rangeStart, rangeEnd, from, size);
 
         return events.stream()
                 .map(eventMapper::toEventFullDto)
@@ -191,20 +192,15 @@ public class EventServiceImpl implements EventService {
             Integer size) {
 
         if (rangeStart != null && rangeEnd != null && rangeStart.isAfter(rangeEnd)) {
-            throw new IllegalArgumentException("Range start must be before range end");
+            throw new BadRequestException("Range start must be before range end");
         }
 
-        Sort sorting = Sort.by("eventDate").descending();
-        if ("VIEWS".equals(sort)) {
-            sorting = Sort.by("views").descending();
-        }
-
-        Pageable pageable = PageRequest.of(from / size, size, sorting);
         List<EventState> publishedState = List.of(EventState.PUBLISHED);
 
         List<Event> events = eventRepository.findByPublicCriteria(
-                text, categories, paid, rangeStart, rangeEnd, onlyAvailable, publishedState, pageable
-        ).getContent();
+                text, categories, paid, rangeStart, rangeEnd, onlyAvailable, publishedState,
+                from, size, sort
+        );
 
         return events.stream()
                 .map(eventMapper::toEventShortDto)
@@ -212,7 +208,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public EventFullDto getEventByPublic(Long eventId) {
+    public EventFullDto getEventByPublic(Long eventId, String ip) {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotFoundException("Event with id=" + eventId + " was not found"));
 
@@ -220,9 +216,12 @@ public class EventServiceImpl implements EventService {
             throw new NotFoundException("Event with id=" + eventId + " was not found");
         }
 
-
-        event.setViews(event.getViews() + 1);
-        eventRepository.save(event);
+        String path = "/events/" + eventId;
+        if (!ipInfoService.existsByIpAndPath(ip, path)) {
+            event.setViews(event.getViews() + 1);
+            eventRepository.save(event);
+            ipInfoService.create(ip, path);
+        }
 
         return eventMapper.toEventFullDto(event);
     }

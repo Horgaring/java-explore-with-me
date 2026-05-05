@@ -1,5 +1,6 @@
 package ru.practicum.event.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
@@ -37,7 +38,8 @@ public class PublicEventController {
     }
 
     @GetMapping("/{id}")
-    public EventFullDto getEventByPublic(@PathVariable Long id) {
-        return eventService.getEventByPublic(id);
+    public EventFullDto getEventByPublic(@PathVariable Long id, HttpServletRequest request) {
+        String ip = request.getRemoteAddr();
+        return eventService.getEventByPublic(id, ip);
     }
 }

@@ -42,7 +42,7 @@ public interface EventService {
             Integer from,
             Integer size);
 
-    EventFullDto getEventByPublic(Long eventId);
+    EventFullDto getEventByPublic(Long eventId, String ip);
 
     void incrementViews(Long eventId, int increment);
 
