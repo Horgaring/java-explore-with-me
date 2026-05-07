@@ -1,6 +1,7 @@
 package ru.practicum.ipinfo.model;
 
 import jakarta.persistence.Embeddable;
+
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -10,7 +11,8 @@ public class IpInfoId implements Serializable {
     private String ip;
     private String path;
 
-    public IpInfoId() {}
+    public IpInfoId() {
+    }
 
     public IpInfoId(String ip, String path) {
         this.ip = ip;

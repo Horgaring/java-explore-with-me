@@ -3,8 +3,6 @@ package ru.practicum.event.model;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 import ru.practicum.category.model.Category;
 import ru.practicum.user.model.User;
 

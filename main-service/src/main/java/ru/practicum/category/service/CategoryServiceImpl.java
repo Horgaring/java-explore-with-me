@@ -16,7 +16,6 @@ import ru.practicum.event.service.EventService;
 import ru.practicum.exception.ConflictException;
 import ru.practicum.exception.NotFoundException;
 
-import java.sql.SQLException;
 import java.util.List;
 import java.util.stream.Collectors;
 
