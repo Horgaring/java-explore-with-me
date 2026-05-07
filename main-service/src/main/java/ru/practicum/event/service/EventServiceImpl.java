@@ -147,6 +147,11 @@ public class EventServiceImpl implements EventService {
                 .orElseThrow(() -> new NotFoundException("Event with id=" + eventId + " was not found"));
 
 
+        if (updateRequest.getEventDate() != null &&
+                updateRequest.getEventDate().isBefore(LocalDateTime.now().plusHours(2))) {
+            throw new BadRequestException("Event date must be at least 2 hours from now");
+        }
+
         if (updateRequest.getEventDate() != null && event.getPublishedOn() != null) {
             if (updateRequest.getEventDate().isBefore(event.getPublishedOn().plusHours(1))) {
                 throw new ConflictException("Event date must be at least 1 hour after publication");
