@@ -20,6 +20,8 @@ import ru.practicum.exception.NotFoundException;
 import ru.practicum.ipinfo.service.IpInfoService;
 import ru.practicum.user.model.User;
 import ru.practicum.user.repository.UserRepository;
+import ru.practicum.Client;
+import dto.EndpointHit;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -35,6 +37,7 @@ public class EventServiceImpl implements EventService {
     private final CategoryRepository categoryRepository;
     private final EventMapper eventMapper;
     private final IpInfoService ipInfoService;
+    private final Client statsClient;
 
     @Override
     public EventFullDto addEvent(Long userId, NewEventDto newEventDto) {
@@ -194,7 +197,8 @@ public class EventServiceImpl implements EventService {
             Boolean onlyAvailable,
             String sort,
             Integer from,
-            Integer size) {
+            Integer size,
+            String ip) {
 
         if (rangeStart != null && rangeEnd != null && rangeStart.isAfter(rangeEnd)) {
             throw new BadRequestException("Range start must be before range end");
@@ -206,6 +210,13 @@ public class EventServiceImpl implements EventService {
                 text, categories, paid, rangeStart, rangeEnd, onlyAvailable, publishedState,
                 from, size, sort
         );
+
+        statsClient.hit(EndpointHit.builder()
+                .app("ewm-main-service")
+                .uri("/events")
+                .ip(ip)
+                .timestamp(LocalDateTime.now())
+                .build());
 
         return events.stream()
                 .map(eventMapper::toEventShortDto)
@@ -227,6 +238,13 @@ public class EventServiceImpl implements EventService {
             eventRepository.save(event);
             ipInfoService.create(ip, path);
         }
+
+        statsClient.hit(EndpointHit.builder()
+                .app("ewm-main-service")
+                .uri(path)
+                .ip(ip)
+                .timestamp(LocalDateTime.now())
+                .build());
 
         return eventMapper.toEventFullDto(event);
     }

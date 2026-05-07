@@ -32,9 +32,10 @@ public class PublicEventController {
             @RequestParam(required = false) Boolean onlyAvailable,
             @RequestParam(required = false) String sort,
             @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
-            @RequestParam(defaultValue = "10") @Positive Integer size) {
+            @RequestParam(defaultValue = "10") @Positive Integer size,
+            HttpServletRequest request) {
         return eventService.getEventsByPublic(text, categories, paid, rangeStart, rangeEnd,
-                onlyAvailable != null ? onlyAvailable : false, sort, from, size);
+                onlyAvailable != null ? onlyAvailable : false, sort, from, size, request.getRemoteAddr());
     }
 
     @GetMapping("/{id}")
