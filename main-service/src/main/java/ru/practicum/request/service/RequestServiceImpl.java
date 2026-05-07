@@ -153,7 +153,8 @@ public class RequestServiceImpl implements RequestService {
             }
         }
 
-        List<ParticipationRequestDto> resultRequests = new ArrayList<>();
+        List<ParticipationRequestDto> confirmedRequests = new ArrayList<>();
+        List<ParticipationRequestDto> rejectedRequests = new ArrayList<>();
 
         int currentConfirmed = requestRepository.countByEventIdAndStatus(eventId, RequestStatus.CONFIRMED);
 
@@ -167,25 +168,26 @@ public class RequestServiceImpl implements RequestService {
             for (ParticipationRequest req : requests) {
                 req.setStatus(RequestStatus.REJECTED);
                 ParticipationRequest saved = requestRepository.save(req);
-                resultRequests.add(requestMapper.toDto(saved));
+                rejectedRequests.add(requestMapper.toDto(saved));
             }
         } else if ("CONFIRMED".equals(requestDto.getStatus())) {
             for (ParticipationRequest req : requests) {
                 if (event.getParticipantLimit() != 0 && currentConfirmed >= event.getParticipantLimit()) {
                     req.setStatus(RequestStatus.REJECTED);
+                    rejectedRequests.add(requestMapper.toDto(requestRepository.save(req)));
                 } else {
                     req.setStatus(RequestStatus.CONFIRMED);
                     currentConfirmed++;
                     event.setConfirmedRequests(event.getConfirmedRequests() + 1);
+                    confirmedRequests.add(requestMapper.toDto(requestRepository.save(req)));
                 }
-                ParticipationRequest saved = requestRepository.save(req);
-                resultRequests.add(requestMapper.toDto(saved));
             }
             eventRepository.save(event);
         }
 
         return EventRequestStatusUpdateResult.builder()
-                .requests(resultRequests)
+                .confirmedRequests(confirmedRequests)
+                .rejectedRequests(rejectedRequests)
                 .build();
     }
 }
