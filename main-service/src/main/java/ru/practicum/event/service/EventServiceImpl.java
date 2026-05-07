@@ -242,6 +242,11 @@ public class EventServiceImpl implements EventService {
         eventRepository.save(event);
     }
 
+    @Override
+    public List<Event> findByCategoryId(Long categoryId) {
+        return eventRepository.findByCategoryId(categoryId);
+    }
+
     private void updateEventFields(Event event, UpdateEventAdminRequest updateRequest) {
         updateEventFieldsCommon(event, updateRequest);
     }

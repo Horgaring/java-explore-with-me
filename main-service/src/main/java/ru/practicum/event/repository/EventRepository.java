@@ -28,4 +28,7 @@ public interface EventRepository extends JpaRepository<Event, Long>, CustomEvent
 
     @Query("SELECT e.confirmedRequests FROM Event e WHERE e.id = :eventId")
     Integer findConfirmedRequestsById(@Param("eventId") Long eventId);
+
+
+    List<Event> findByCategoryId(Long categoryId);
 }

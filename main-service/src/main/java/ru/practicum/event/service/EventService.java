@@ -5,6 +5,7 @@ import ru.practicum.event.dto.EventShortDto;
 import ru.practicum.event.dto.NewEventDto;
 import ru.practicum.event.dto.UpdateEventAdminRequest;
 import ru.practicum.event.dto.UpdateEventUserRequest;
+import ru.practicum.event.model.Event;
 import ru.practicum.event.model.EventState;
 
 import java.time.LocalDateTime;
@@ -47,4 +48,6 @@ public interface EventService {
     void incrementViews(Long eventId, int increment);
 
     void incrementConfirmedRequests(Long eventId, int increment);
+
+    List<Event> findByCategoryId(Long categoryId);
 }

@@ -20,6 +20,7 @@ public interface CustomEventRepository {
             int size,
             String sort);
 
+
     List<Event> findByAdminCriteria(
             List<Long> users,
             List<EventState> states,

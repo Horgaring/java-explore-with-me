@@ -12,9 +12,11 @@ import ru.practicum.category.dto.RequestCategoryDto;
 import ru.practicum.category.mapper.CategoryMapper;
 import ru.practicum.category.model.Category;
 import ru.practicum.category.repository.CategoryRepository;
+import ru.practicum.event.service.EventService;
 import ru.practicum.exception.ConflictException;
 import ru.practicum.exception.NotFoundException;
 
+import java.sql.SQLException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,6 +27,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryRepository categoryRepository;
     private final CategoryMapper categoryMapper;
+    private final EventService eventService;
 
     @Override
     @Transactional
@@ -68,11 +71,11 @@ public class CategoryServiceImpl implements CategoryService {
         Category category = categoryRepository.findById(catId)
                 .orElseThrow(() -> new NotFoundException("Category with id=" + catId + " was not found"));
 
-        try {
-            categoryRepository.delete(category);
-        } catch (DataIntegrityViolationException e) {
+        if (!eventService.findByCategoryId(catId).isEmpty()) {
             throw new ConflictException("The category is not empty");
         }
+
+        categoryRepository.delete(category);
     }
 
     @Override
