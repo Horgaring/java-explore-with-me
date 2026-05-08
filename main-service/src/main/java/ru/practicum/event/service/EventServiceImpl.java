@@ -1,12 +1,14 @@
 package ru.practicum.event.service;
 
-import jakarta.transaction.Transactional;
+import dto.EndpointHit;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.Client;
 import ru.practicum.category.model.Category;
 import ru.practicum.category.repository.CategoryRepository;
 import ru.practicum.event.dto.*;
@@ -20,8 +22,6 @@ import ru.practicum.exception.NotFoundException;
 import ru.practicum.ipinfo.service.IpInfoService;
 import ru.practicum.user.model.User;
 import ru.practicum.user.repository.UserRepository;
-import ru.practicum.Client;
-import dto.EndpointHit;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -29,7 +29,6 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class EventServiceImpl implements EventService {
 
     private final EventRepository eventRepository;
@@ -40,6 +39,7 @@ public class EventServiceImpl implements EventService {
     private final Client statsClient;
 
     @Override
+    @Transactional
     public EventFullDto addEvent(Long userId, NewEventDto newEventDto) {
         User initiator = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User with id=" + userId + " was not found"));
@@ -64,6 +64,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<EventShortDto> getEventsByInitiator(Long userId, Integer from, Integer size) {
         userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User with id=" + userId + " was not found"));
@@ -77,6 +78,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public EventFullDto getEventByInitiator(Long userId, Long eventId) {
         userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User with id=" + userId + " was not found"));
@@ -88,6 +90,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @Transactional
     public EventFullDto updateEventByInitiator(Long userId, Long eventId, UpdateEventUserRequest updateRequest) {
         User initiator = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User with id=" + userId + " was not found"));
@@ -119,6 +122,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<EventFullDto> getEventsByAdmin(
             List<Long> users,
             List<EventState> states,
@@ -140,6 +144,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @Transactional
     public EventFullDto updateEventByAdmin(Long eventId, UpdateEventAdminRequest updateRequest) {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotFoundException("Event with id=" + eventId + " was not found"));
@@ -223,10 +228,7 @@ public class EventServiceImpl implements EventService {
         }
 
         String path = "/events/" + eventId;
-        if (!ipInfoService.existsByIpAndPath(ip, path)) {
-            event.setViews(event.getViews() + 1);
-            ipInfoService.create(ip, path);
-        }
+        incrementViewIfNeeded(event, ip, path);
 
         statsClient.hit(EndpointHit.builder()
                 .app("ewm-main-service")
@@ -238,7 +240,16 @@ public class EventServiceImpl implements EventService {
         return eventMapper.toEventFullDto(event);
     }
 
+    @Transactional
+    protected void incrementViewIfNeeded(Event event, String ip, String path) {
+        if (!ipInfoService.existsByIpAndPath(ip, path)) {
+            event.setViews(event.getViews() + 1);
+            ipInfoService.create(ip, path);
+        }
+    }
+
     @Override
+    @Transactional
     public void incrementViews(Long eventId, int increment) {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotFoundException("Event with id=" + eventId + " was not found"));
@@ -246,6 +257,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @Transactional
     public void incrementConfirmedRequests(Long eventId, int increment) {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotFoundException("Event with id=" + eventId + " was not found"));
@@ -253,6 +265,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Event> findByCategoryId(Long categoryId) {
         return eventRepository.findByCategoryId(categoryId);
     }
