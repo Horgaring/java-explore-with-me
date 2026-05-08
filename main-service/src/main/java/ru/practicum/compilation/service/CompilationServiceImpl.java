@@ -17,8 +17,9 @@ import ru.practicum.event.repository.EventRepository;
 import ru.practicum.exception.ConflictException;
 import ru.practicum.exception.NotFoundException;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -33,7 +34,7 @@ public class CompilationServiceImpl implements CompilationService {
     @Override
     @Transactional
     public CompilationDto addCompilation(NewCompilationDto dto) {
-        List<Event> events = new ArrayList<>();
+        Set<Event> events = new HashSet<>();
         if (dto.getEvents() != null && !dto.getEvents().isEmpty()) {
             events = eventRepository.findByIdIn(dto.getEvents());
         }
@@ -74,7 +75,7 @@ public class CompilationServiceImpl implements CompilationService {
             compilation.setPinned(dto.getPinned());
         }
         if (dto.getEvents() != null) {
-            List<Event> events = eventRepository.findByIdIn(dto.getEvents());
+            Set<Event> events = eventRepository.findByIdIn(dto.getEvents());
             compilation.setEvents(events);
         }
 

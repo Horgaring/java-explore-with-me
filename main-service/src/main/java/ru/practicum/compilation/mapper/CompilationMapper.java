@@ -30,7 +30,7 @@ public class CompilationMapper {
         if (compilation.getEvents() != null) {
             dto.setEvents(compilation.getEvents().stream()
                     .map(eventMapper::toEventShortDto)
-                    .collect(Collectors.toList()));
+                    .collect(Collectors.toSet()));
         }
 
         return dto;

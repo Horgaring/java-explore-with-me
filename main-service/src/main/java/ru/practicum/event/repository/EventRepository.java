@@ -9,6 +9,7 @@ import ru.practicum.event.model.Event;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public interface EventRepository extends JpaRepository<Event, Long>, CustomEventRepository {
 
@@ -16,7 +17,7 @@ public interface EventRepository extends JpaRepository<Event, Long>, CustomEvent
 
     Optional<Event> findByIdAndInitiatorId(Long eventId, Long userId);
 
-    List<Event> findByIdIn(List<Long> eventIds);
+    Set<Event> findByIdIn(Set<Long> eventIds);
 
     boolean existsByCategoryId(Long categoryId);
 
