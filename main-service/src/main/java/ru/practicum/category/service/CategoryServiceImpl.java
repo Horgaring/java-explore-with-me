@@ -57,8 +57,7 @@ public class CategoryServiceImpl implements CategoryService {
         }
 
         try {
-            Category updatedCategory = categoryRepository.save(existingCategory);
-            return categoryMapper.toCategoryDto(updatedCategory);
+            return categoryMapper.toCategoryDto(existingCategory);
         } catch (DataIntegrityViolationException e) {
             throw new ConflictException("Category name must be unique");
         }

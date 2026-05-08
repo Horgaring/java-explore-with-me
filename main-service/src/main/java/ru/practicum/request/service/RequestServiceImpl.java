@@ -81,7 +81,6 @@ public class RequestServiceImpl implements RequestService {
 
         if (saved.getStatus() == RequestStatus.CONFIRMED) {
             event.setConfirmedRequests(event.getConfirmedRequests() + 1);
-            eventRepository.save(event);
         }
 
         return requestMapper.toDto(saved);
@@ -102,15 +101,13 @@ public class RequestServiceImpl implements RequestService {
 
         boolean wasConfirmed = request.getStatus() == RequestStatus.CONFIRMED;
         request.setStatus(RequestStatus.CANCELED);
-        ParticipationRequest saved = requestRepository.save(request);
 
         if (wasConfirmed) {
             Event event = request.getEvent();
             event.setConfirmedRequests(event.getConfirmedRequests() - 1);
-            eventRepository.save(event);
         }
 
-        return requestMapper.toDto(saved);
+        return requestMapper.toDto(request);
     }
 
     @Override
@@ -167,22 +164,20 @@ public class RequestServiceImpl implements RequestService {
         if ("REJECTED".equals(requestDto.getStatus())) {
             for (ParticipationRequest req : requests) {
                 req.setStatus(RequestStatus.REJECTED);
-                ParticipationRequest saved = requestRepository.save(req);
-                rejectedRequests.add(requestMapper.toDto(saved));
+                rejectedRequests.add(requestMapper.toDto(req));
             }
         } else if ("CONFIRMED".equals(requestDto.getStatus())) {
             for (ParticipationRequest req : requests) {
                 if (event.getParticipantLimit() != 0 && currentConfirmed >= event.getParticipantLimit()) {
                     req.setStatus(RequestStatus.REJECTED);
-                    rejectedRequests.add(requestMapper.toDto(requestRepository.save(req)));
+                    rejectedRequests.add(requestMapper.toDto(req));
                 } else {
                     req.setStatus(RequestStatus.CONFIRMED);
                     currentConfirmed++;
                     event.setConfirmedRequests(event.getConfirmedRequests() + 1);
-                    confirmedRequests.add(requestMapper.toDto(requestRepository.save(req)));
+                    confirmedRequests.add(requestMapper.toDto(req));
                 }
             }
-            eventRepository.save(event);
         }
 
         return EventRequestStatusUpdateResult.builder()

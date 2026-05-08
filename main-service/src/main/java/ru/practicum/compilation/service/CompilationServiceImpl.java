@@ -79,11 +79,12 @@ public class CompilationServiceImpl implements CompilationService {
         }
 
         try {
-            Compilation saved = compilationRepository.save(compilation);
-            return compilationMapper.toCompilationDto(saved);
+            compilationRepository.flush();
         } catch (DataIntegrityViolationException e) {
             throw new ConflictException("Compilation title must be unique");
         }
+
+        return compilationMapper.toCompilationDto(compilation);
     }
 
     @Override

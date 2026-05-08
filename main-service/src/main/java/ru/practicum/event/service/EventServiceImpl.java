@@ -115,12 +115,7 @@ public class EventServiceImpl implements EventService {
             event.setState(EventState.CANCELED);
         }
 
-        try {
-            Event updatedEvent = eventRepository.save(event);
-            return eventMapper.toEventFullDto(updatedEvent);
-        } catch (DataIntegrityViolationException e) {
-            throw new ConflictException("Failed to update event");
-        }
+        return eventMapper.toEventFullDto(event);
     }
 
     @Override
@@ -179,12 +174,7 @@ public class EventServiceImpl implements EventService {
 
         updateEventFields(event, updateRequest);
 
-        try {
-            Event updatedEvent = eventRepository.save(event);
-            return eventMapper.toEventFullDto(updatedEvent);
-        } catch (DataIntegrityViolationException e) {
-            throw new ConflictException("Failed to update event");
-        }
+        return eventMapper.toEventFullDto(event);
     }
 
     @Override
@@ -235,7 +225,6 @@ public class EventServiceImpl implements EventService {
         String path = "/events/" + eventId;
         if (!ipInfoService.existsByIpAndPath(ip, path)) {
             event.setViews(event.getViews() + 1);
-            eventRepository.save(event);
             ipInfoService.create(ip, path);
         }
 
@@ -254,7 +243,6 @@ public class EventServiceImpl implements EventService {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotFoundException("Event with id=" + eventId + " was not found"));
         event.setViews(event.getViews() + increment);
-        eventRepository.save(event);
     }
 
     @Override
@@ -262,7 +250,6 @@ public class EventServiceImpl implements EventService {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotFoundException("Event with id=" + eventId + " was not found"));
         event.setConfirmedRequests(event.getConfirmedRequests() + increment);
-        eventRepository.save(event);
     }
 
     @Override
