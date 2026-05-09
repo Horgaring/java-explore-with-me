@@ -10,6 +10,7 @@ import ru.practicum.statsservice.service.StatsService;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import ru.practicum.statsservice.exception.BadRequestException;
 
 @Service
 @AllArgsConstructor
@@ -25,6 +26,9 @@ public class StatsServiceImpl implements StatsService {
 
     @Override
     public List<ViewStats> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, boolean unique) {
+        if (start != null && end != null && start.isAfter(end)) {
+            throw new BadRequestException("Start must be before end");
+        }
         List<Object[]> results = unique
                 ? visitRepository.findStatsUnique(start, end, uris)
                 : visitRepository.findStats(start, end, uris);
