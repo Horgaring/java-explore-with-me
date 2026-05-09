@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import ru.practicum.comment.model.CommentStatus;
 
 import java.time.LocalDateTime;
@@ -19,7 +20,9 @@ public class AdminCommentSearchFilter {
     private CommentStatus status;
     private Long eventId;
     private Long userId;
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime rangeStart;
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime rangeEnd;
     @PositiveOrZero
     private Integer from = 0;

@@ -26,7 +26,7 @@ public class Comment {
     @Column(name = "content", nullable = false, length = 2000)
     private String content;
 
-    @ManyToOne(cascade = CascadeType.REMOVE)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
